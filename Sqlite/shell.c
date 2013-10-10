@@ -1462,7 +1462,7 @@ static int process_input(struct callback_data *p, FILE *in);
 
 /*
 ** Make sure the database is open.  If it is not, then open it.  If
-** the database fails to open, print an error message and exit.
+** the database fails to open, print an error message and exit.确保数据库打开，若打不开，打印错误信息并退出
 */
 static void open_db(struct callback_data *p){
   if( p->db==0 ){
@@ -3033,6 +3033,7 @@ int main(int argc, char **argv){
     }else if( strcmp(z,"-init")==0 ){
       zInitFile = cmdline_option_value(argc, argv, ++i);
     }else if( strcmp(z,"-batch")==0 ){
+        //在这里需要检查批处理模式，以便我们能在做出实际的参数处理之前避免打印消息
       /* Need to check for batch mode here to so we can avoid printing
       ** informational messages (like from process_sqliterc) before 
       ** we do the actual processing of arguments later in a second pass.
@@ -3078,7 +3079,7 @@ int main(int argc, char **argv){
       }
     }
   }
-  if( data.zDbFilename==0 ){
+  if( data.zDbFilename==0 ){//如果没有数据库名称，则在内存中创建数据库
 #ifndef SQLITE_OMIT_MEMORYDB
     data.zDbFilename = ":memory:";
 #else
@@ -3091,7 +3092,8 @@ int main(int argc, char **argv){
   /* Go ahead and open the database file if it already exists.  If the
   ** file does not exist, delay opening it.  This prevents empty database
   ** files from being created if a user mistypes the database name argument
-  ** to the sqlite command-line tool.
+  ** to the sqlite command-line tool.如果数据库文件存在，则打开数据库，若不存在，先不打开。
+   **这可以防止用户因在命令行中的错误的输入二创建空的数据库文件
   */
   if( access(data.zDbFilename, 0)==0 ){
     open_db(&data);
@@ -3099,7 +3101,7 @@ int main(int argc, char **argv){
 
   /* Process the initialization file if there is one.  If no -init option
   ** is given on the command line, look for a file named ~/.sqliterc and
-  ** try to process it.
+  ** try to process it.若有初始化的文件，则处理初始化文件。如果没有给出-init项，则找到~/.sqliterc 文件，并运行
   */
   rc = process_sqliterc(&data,zInitFile);
   if( rc>0 ){
@@ -3109,7 +3111,7 @@ int main(int argc, char **argv){
   /* Make a second pass through the command-line argument and set
   ** options.  This second pass is delayed until after the initialization
   ** file is processed so that the command-line arguments will override
-  ** settings in the initialization file.
+  ** settings in the initialization file.过滤参数，以及设置选项。初始化文件执行以后才会执行该过滤，以便命令行参数可以覆盖初始化文件中的设置
   */
   for(i=1; i<argc; i++){
     char *z = argv[i];
@@ -3192,7 +3194,7 @@ int main(int argc, char **argv){
   }
 
   if( zFirstCmd ){
-    /* Run just the command that follows the database name
+    /* Run just the command that follows the database name.首先执行数据库名称之后的命令
     */
     if( zFirstCmd[0]=='.' ){
       rc = do_meta_command(zFirstCmd, &data);
@@ -3209,7 +3211,7 @@ int main(int argc, char **argv){
       }
     }
   }else{
-    /* Run commands received from standard input
+    /* Run commands received from standard input执行从标准输入得到的命令，即如果main函数没有参数，则直接到此处执行命令
     */
     if( stdin_is_interactive ){
       char *zHome;
@@ -3242,7 +3244,7 @@ int main(int argc, char **argv){
     }
   }
   set_table_name(&data, 0);
-  if( data.db ){
+  if( data.db ){//关闭数据库
     sqlite3_close(data.db);
   }
   return rc;
