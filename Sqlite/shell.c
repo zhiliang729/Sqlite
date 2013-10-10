@@ -3006,7 +3006,7 @@ int main(int argc, char **argv){
   /* Do an initial pass through the command-line argument to locate
   ** the name of the database file, the name of the initialization file,
   ** the size of the alternative malloc heap,
-  ** and the first command to execute.对命令行参数做一些过滤工作，定位数据库名称，初始化文件名称，可选内存堆栈大小以及首先要执行的命令.测试中
+  ** and the first command to execute.对命令行参数做一些过滤工作，定位数据库名称，初始化文件名称，可选内存堆栈大小以及首先要执行的命令.
   */
   for(i=1; i<argc; i++){//对输入参数做一些判断，然后决定对显示等方面的影响
     char *z;
